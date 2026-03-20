@@ -11,7 +11,8 @@ import {
   Clock,
   Plus,
   MessageSquare,
-  Send
+  Send,
+  Zap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { askDiagnosis } from '../services/tcmData';
@@ -85,6 +86,11 @@ export default function DashboardPage() {
         <Link to="/diagnosis">
           <Button className="rounded-2xl h-14 px-8 text-lg font-semibold flex gap-2">
             <Plus size={20} /> New Diagnosis
+          </Button>
+        </Link>
+        <Link to="/quick-diagnosis">
+          <Button variant="outline" className="rounded-2xl h-14 px-8 text-lg font-semibold flex gap-2 border-amber-200 text-amber-600 hover:bg-amber-50">
+            <Zap size={20} /> Quick Check
           </Button>
         </Link>
       </div>

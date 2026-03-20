@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Stethoscope, 
+  Zap,
   Users, 
   Map as MapIcon, 
   Settings,
@@ -26,6 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Diagnosis', path: '/diagnosis', icon: Stethoscope },
+    { name: 'Quick Check', path: '/quick-diagnosis', icon: Zap },
     { name: 'Patients', path: '/patients', icon: Users },
     { name: 'Meridian', path: '/meridian', icon: MapIcon },
     { name: 'Settings', path: '/settings', icon: Settings },

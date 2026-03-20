@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './services/supabaseClient';
 import { getUserProfile, UserProfile } from './services/userService';
-import { Shield } from 'lucide-react';
-import { Button } from './components/ui';
+import { Shield, AlertCircle } from 'lucide-react';
+import { Button, Card } from './components/ui';
 import Layout from './components/Layout';
 import LoginPage from './components/LoginPage';
 import DashboardPage from './components/DashboardPage';
@@ -11,42 +11,83 @@ import DiagnosisPage from './components/DiagnosisPage';
 import PatientsPage from './components/PatientsPage';
 import MeridianPage from './components/MeridianPage';
 import SettingsPage from './components/SettingsPage';
+import QuickDiagnosis from './components/QuickDiagnosis';
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [missingKeys, setMissingKeys] = useState(false);
+  const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
 
   useEffect(() => {
     const url = import.meta.env.VITE_SUPABASE_URL;
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    if (!url || !key || url === 'https://placeholder.supabase.co' || key === 'placeholder') {
+    const isMissing = !url || !key || url === 'https://placeholder.supabase.co' || key === 'placeholder';
+    
+    if (isMissing) {
       setMissingKeys(true);
+      setLoading(false);
+      return;
     }
 
-    // Check initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        const userProfile = await getUserProfile(session.user.id);
-        setProfile(userProfile);
+    let isMounted = true;
+
+    // Show timeout message after 5 seconds
+    const timeoutMsgId = setTimeout(() => {
+      if (isMounted && loading) {
+        setShowTimeoutMessage(true);
       }
-      setLoading(false);
-    });
+    }, 5000);
+
+    const initAuth = async () => {
+      // Safety timeout to ensure the app loads even if Supabase is slow or hanging
+      const timeoutId = setTimeout(() => {
+        if (isMounted) {
+          console.warn('Auth initialization timed out');
+          setLoading(false);
+        }
+      }, 10000);
+
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+
+        setSession(initialSession);
+        if (initialSession?.user) {
+          const userProfile = await getUserProfile(initialSession.user.id);
+          if (isMounted) setProfile(userProfile);
+        }
+      } catch (error) {
+        console.error('Error during auth initialization:', error);
+      } finally {
+        if (isMounted) {
+          clearTimeout(timeoutId);
+          clearTimeout(timeoutMsgId);
+          setLoading(false);
+        }
+      }
+    };
+
+    initAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!isMounted) return;
       setSession(session);
       if (session?.user) {
         const userProfile = await getUserProfile(session.user.id);
-        setProfile(userProfile);
+        if (isMounted) setProfile(userProfile);
       } else {
         setProfile(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+      clearTimeout(timeoutMsgId);
+    };
   }, []);
 
   const isSubscriptionActive = () => {
@@ -58,8 +99,23 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FF] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F9FF] flex flex-col items-center justify-center p-6 space-y-6">
         <div className="w-12 h-12 border-4 border-[#6C5CE7] border-t-transparent rounded-full animate-spin" />
+        {showTimeoutMessage && (
+          <div className="text-center space-y-4 animate-in fade-in duration-700">
+            <div className="space-y-2">
+              <p className="text-gray-600 font-medium">Initializing TCM Master...</p>
+              <p className="text-xs text-gray-400 max-w-xs">This is taking longer than usual. It might be a connection issue with the database.</p>
+            </div>
+            <Button 
+              variant="outline" 
+              className="rounded-xl border-[#6C5CE7] text-[#6C5CE7] hover:bg-[#6C5CE7]/5"
+              onClick={() => setLoading(false)}
+            >
+              Skip Loading & Try Anyway
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -114,6 +170,10 @@ export default function App() {
         <Route
           path="/diagnosis"
           element={<ProtectedRoute><DiagnosisPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/quick-diagnosis"
+          element={<ProtectedRoute><QuickDiagnosis /></ProtectedRoute>}
         />
         <Route
           path="/patients"
