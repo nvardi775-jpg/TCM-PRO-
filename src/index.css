@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-serif bg-violet-100 text-violet-950;
+  }
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-violet-600/20 rounded-full;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Crafted Table Styling */
+.prose table {
+  @apply w-full border-collapse my-6 text-sm;
+}
+
+.prose thead {
+  @apply bg-violet-700 text-white;
+}
+
+.prose th {
+  @apply p-3 text-left font-bold uppercase tracking-widest border border-violet-600/20;
+}
+
+.prose td {
+  @apply p-3 border border-violet-600/10 align-top;
+}
+
+.prose tr:nth-child(even) {
+  @apply bg-violet-600/5;
+}

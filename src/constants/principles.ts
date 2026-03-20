@@ -1,0 +1,18 @@
+export const THERAPEUTIC_PRINCIPLES: Record<string, string> = {
+  'Smooth the Liver': 'Melancarkan Liver (Shu Gan): Menghilangkan stagnasi Qi Liver agar mengalir bebas. Digunakan untuk Stagnasi Qi Liver.',
+  'Move Qi': 'Menggerakkan Qi (Li Qi): Menghilangkan stagnasi Qi di organ atau saluran. Digunakan untuk nyeri distensi dan rasa tertekan.',
+  'Tonify Qi': 'Menguatkan Qi (Bu Qi): Meningkatkan energi tubuh yang lemah. Digunakan untuk Defisiensi Qi Spleen atau Lung.',
+  'Nourish Blood': 'Menyehatkan Darah (Yang Xue): Menambah volume dan kualitas darah. Digunakan untuk Defisiensi Darah Liver atau Heart.',
+  'Clear Heat': 'Membersihkan Panas (Qing Re): Menghilangkan panas patogen dari tubuh. Digunakan untuk pola Full Heat atau Api.',
+  'Resolve Phlegm': 'Mengubah Dahak (Hua Tan): Menghilangkan akumulasi cairan kental yang menghambat. Digunakan untuk batuk berdahak atau gangguan pikiran.',
+  'Expel Wind': 'Mengeluarkan Angin (Qu Feng): Mengusir patogen angin eksterior atau menenangkan angin interior.',
+  'Warm Cold': 'Menghangatkan Dingin (Wen Han): Menghilangkan patogen dingin atau menghangatkan Yang yang lemah.',
+  'Nourish Yin': 'Menyehatkan Yin (Zi Yin): Menambah cairan tubuh dan energi pendingin. Digunakan untuk Defisiensi Yin Kidney atau Lung.',
+  'Strengthen Yang': 'Menguatkan Yang (Zhuang Yang): Meningkatkan energi panas dan aktivitas tubuh. Digunakan untuk Defisiensi Yang Kidney.',
+  'Regulate Blood': 'Mengatur Darah (Li Xue): Menggerakkan darah yang stagnan atau menghentikan perdarahan.',
+  'Drain Dampness': 'Mengeluarkan Lembab (Li Shi): Menghilangkan akumulasi cairan berlebih melalui urin.',
+  'Subdue Yang': 'Menekan Yang (Qian Yang): Menurunkan Yang Liver yang naik ke atas agar tidak menyebabkan pusing atau stroke.',
+  'Harmonize': 'Mengharmoniskan (He Fa): Menyeimbangkan dua organ yang saling menyerang, seperti Liver dan Spleen.',
+  'Open Orifices': 'Membuka Lubang (Kai Qiao): Mengembalikan kesadaran dengan menghilangkan sumbatan pada Jantung.',
+  'Calm the Mind': 'Menenangkan Pikiran (An Shen): Menstabilkan aspek spiritual (Shen) untuk mengatasi insomnia atau kecemasan.',
+};
