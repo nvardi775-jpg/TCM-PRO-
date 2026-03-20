@@ -9,9 +9,12 @@ import {
   ChevronRight, 
   Calendar,
   Clock,
-  Plus
+  Plus,
+  MessageSquare,
+  Send
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { askDiagnosis } from '../services/tcmData';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -21,6 +24,22 @@ export default function DashboardPage() {
   });
   const [recentDiagnoses, setRecentDiagnoses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
+    { role: 'ai', text: 'Hello Doctor! I am your TCM Assistant. Ask me about symptoms or syndromes.' }
+  ]);
+
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+    const userMsg = chatInput.trim();
+    setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setChatInput('');
+    
+    setTimeout(() => {
+      const aiResponse = askDiagnosis(userMsg);
+      setChatMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+    }, 500);
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -185,6 +204,47 @@ export default function DashboardPage() {
                 View Detailed Analytics
               </Button>
             </CardContent>
+          </Card>
+
+          {/* TCM ASSISTANT CHAT */}
+          <Card className="rounded-3xl border-none shadow-xl bg-white overflow-hidden flex flex-col h-[400px]">
+            <div className="p-4 bg-gray-50 border-b flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-[#6C5CE7] flex items-center justify-center text-white">
+                <MessageSquare size={16} />
+              </div>
+              <h3 className="font-bold text-gray-900">TCM Assistant</h3>
+            </div>
+            
+            <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                    msg.role === 'user' 
+                      ? 'bg-[#6C5CE7] text-white rounded-tr-none' 
+                      : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                  }`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+
+            <div className="p-4 border-t bg-gray-50 flex gap-2">
+              <input 
+                type="text"
+                placeholder="Ask symptoms..."
+                className="flex-1 bg-white border-none rounded-xl px-4 text-sm focus:ring-2 focus:ring-[#6C5CE7]/20"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              />
+              <Button 
+                className="w-10 h-10 p-0 rounded-xl"
+                onClick={handleSendMessage}
+              >
+                <Send size={18} />
+              </Button>
+            </div>
           </Card>
         </div>
       </div>

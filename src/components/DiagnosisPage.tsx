@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { getGeminiApiKey } from '../services/aiConfig';
+import { diagnoseFromSymptoms, analyzeTongue } from '../services/tcmData';
 
 const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
 
@@ -30,6 +31,37 @@ export default function DiagnosisPage() {
     pulse: ''
   });
   const [result, setResult] = useState<any>(null);
+  const [tongueAnalysis, setTongueAnalysis] = useState<any>(null);
+
+  const handleQuickCheck = () => {
+    if (!diagnosisData.symptoms) {
+      setError('Please provide symptoms for quick check');
+      return;
+    }
+    const quickResult = diagnoseFromSymptoms(diagnosisData.symptoms);
+    if (quickResult) {
+      setResult({
+        syndrome: quickResult.name,
+        confidence: 75,
+        pathogenesis: `Quick diagnosis based on symptoms: ${diagnosisData.symptoms}. This matches the pattern for ${quickResult.name}.`,
+        differential: [],
+        points: quickResult.points,
+        technique: quickResult.technique,
+        rationale: "Selected based on symptom matching from the TCM Syndrome Master database."
+      });
+      setStep(3);
+    } else {
+      setError('No matching syndrome found in quick database. Please use Smart AI Analysis.');
+    }
+  };
+
+  const handleTongueUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const analysis = analyzeTongue(e.target.files[0]);
+      setTongueAnalysis(analysis);
+      setDiagnosisData(prev => ({ ...prev, tongue: `${prev.tongue} (AI Analysis: ${analysis.result}, Color: ${analysis.color})`.trim() }));
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!diagnosisData.symptoms || !diagnosisData.patientName) {
@@ -221,12 +253,30 @@ Berikan respon dalam format JSON murni (tanpa markdown) dengan struktur:
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700">Tongue Observation</label>
-                    <Input 
-                      placeholder="e.g. pale, swollen, thin white coat" 
-                      value={diagnosisData.tongue}
-                      onChange={(e) => setDiagnosisData({...diagnosisData, tongue: e.target.value})}
-                      className="rounded-2xl h-12"
-                    />
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="e.g. pale, swollen, thin white coat" 
+                        value={diagnosisData.tongue}
+                        onChange={(e) => setDiagnosisData({...diagnosisData, tongue: e.target.value})}
+                        className="rounded-2xl h-12 flex-1"
+                      />
+                      <div className="relative">
+                        <input 
+                          type="file" 
+                          className="absolute inset-0 opacity-0 cursor-pointer" 
+                          accept="image/*"
+                          onChange={handleTongueUpload}
+                        />
+                        <Button variant="outline" className="h-12 w-12 p-0 rounded-2xl">
+                          <Share2 size={18} />
+                        </Button>
+                      </div>
+                    </div>
+                    {tongueAnalysis && (
+                      <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                        <CheckCircle2 size={10} /> AI Analysis: {tongueAnalysis.result} ({tongueAnalysis.color})
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700">Pulse Observation</label>
@@ -246,12 +296,21 @@ Berikan respon dalam format JSON murni (tanpa markdown) dengan struktur:
                   </div>
                 )}
 
-                <Button 
-                  className="w-full h-14 rounded-2xl text-lg font-bold flex gap-2"
-                  onClick={handleAnalyze}
-                >
-                  Start AI Analysis <ArrowRight size={20} />
-                </Button>
+                <div className="flex gap-4">
+                  <Button 
+                    variant="outline"
+                    className="flex-1 h-14 rounded-2xl text-lg font-bold flex gap-2 border-gray-200"
+                    onClick={handleQuickCheck}
+                  >
+                    Quick Check
+                  </Button>
+                  <Button 
+                    className="flex-1 h-14 rounded-2xl text-lg font-bold flex gap-2"
+                    onClick={handleAnalyze}
+                  >
+                    Start AI Analysis <ArrowRight size={20} />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
